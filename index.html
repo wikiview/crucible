@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#14100c" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Crucible" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%2314100c'/><circle cx='90' cy='90' r='44' fill='none' stroke='%23c7652e' stroke-width='2' opacity='0.4'/><path d='M 90 140 C 66 130 60 106 72 86 C 78 78 84 80 82 72 C 80 58 90 44 94 38 C 98 54 104 62 100 74 C 110 80 116 90 110 108 C 106 122 100 136 90 140 Z' fill='%23c7652e'/></svg>" />
+<title>Crucible — A Fasting Vessel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #14100c;
+    --bg-lift:       #1d1712;
+    --bg-glass:      rgba(40, 30, 22, 0.55);
+    --bone:          #f1e7d2;
+    --bone-dim:      #c8bca4;
+    --muted:         #897d68;
+    --muted-dim:     #554c3e;
+    --line:          rgba(241, 231, 210, 0.09);
+    --line-soft:     rgba(241, 231, 210, 0.05);
+
+    --p-fed:         #e8d9b0;
+    --p-early:       #d4b577;
+    --p-switch:      #d1934a;
+    --p-ketosis:     #c7652e;
+    --p-autophagy:   #a83d20;
+    --p-deep:        #7c2318;
+
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --sans:  "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    --mono:  "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--bone);
+    font-family: var(--sans);
+    font-weight: 300;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.01em;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 25%, rgba(199, 101, 46, 0.10), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(124, 35, 24, 0.08), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95  0 0 0 0 0.9  0 0 0 0 0.82  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  main {
+    position: relative;
+    z-index: 2;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 22px 20px 140px;
+  }
+
+  header.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px 0;
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: 10px;
+    font-family: var(--serif);
+    font-size: 22px;
+    letter-spacing: 0.18em;
+  }
+  .brand .mark {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--p-ketosis); border-radius: 50%;
+    box-shadow: 0 0 14px 2px rgba(199, 101, 46, 0.6);
+    transform: translateY(-2px);
+  }
+  .brand em {
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .status-chip {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .status-chip[data-active="true"] {
+    color: var(--p-ketosis);
+    border-color: rgba(199, 101, 46, 0.35);
+  }
+
+  .ring-wrap {
+    position: relative;
+    margin: 36px auto 18px;
+    width: 320px; height: 320px;
+    max-width: 80vw; max-height: 80vw;
+  }
+  .ring-wrap svg.ring {
+    width: 100%; height: 100%;
+    overflow: visible;
+    transform: rotate(-90deg);
+  }
+  .ring-track { stroke: var(--line-soft); }
+  .phase-arc {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: butt;
+    opacity: 0.25;
+    transition: opacity 600ms ease, stroke-width 600ms ease;
+  }
+  .phase-arc.passed  { opacity: 0.55; }
+  .phase-arc.current { opacity: 1; stroke-width: 7; filter: drop-shadow(0 0 10px currentColor); }
+
+  .progress-arc {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 2;
+    opacity: 0.9;
+    transition: stroke-dashoffset 900ms cubic-bezier(.5,.0,.2,1), stroke 900ms ease;
+  }
+  .tick { stroke: var(--line); stroke-width: 1; }
+  .tick-major { stroke: rgba(241, 231, 210, 0.22); }
+
+  .center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    pointer-events: none;
+  }
+  .phase-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    color: var(--bone-dim);
+    margin-bottom: 6px;
+    transition: color 600ms ease;
+  }
+  .elapsed {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 44px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--bone);
+    font-variant-numeric: tabular-nums;
+  }
+  .elapsed .sep { opacity: 0.35; padding: 0 1px; }
+  .elapsed .seconds { font-size: 24px; opacity: 0.55; margin-left: 4px; }
+  .elapsed.idle { color: var(--muted); font-size: 28px; letter-spacing: 0.22em; }
+  .subline {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .controls {
+    display: flex; gap: 10px;
+    justify-content: center;
+    margin: 6px 0 12px;
+    flex-wrap: wrap;
+  }
+  .controls-sub {
+    display: flex; gap: 16px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  button.btn {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 13px 22px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 250ms ease;
+  }
+  button.btn:hover { border-color: rgba(241, 231, 210, 0.3); background: rgba(241, 231, 210, 0.03); }
+  button.btn.primary {
+    background: linear-gradient(180deg, #c7652e 0%, #a83d20 100%);
+    border-color: transparent;
+    color: #1a120c;
+    font-weight: 500;
+    box-shadow: 0 6px 24px -8px rgba(199, 101, 46, 0.5);
+  }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  button.btn.ghost { color: var(--muted); }
+  button.btn.ghost:hover { color: var(--bone-dim); }
+  button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  button.textlink {
+    background: none; border: none;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 0;
+    border-bottom: 1px solid transparent;
+    transition: color 200ms ease, border-color 200ms ease;
+  }
+  button.textlink:hover { color: var(--bone-dim); border-color: var(--line); }
+  button.textlink:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  section.detail {
+    position: relative;
+    background: var(--bg-glass);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 26px 24px 26px;
+    margin: 0 0 32px;
+    overflow: hidden;
+  }
+  section.detail::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--accent, var(--p-ketosis));
+    opacity: 0.7;
+    transition: background 600ms ease;
+  }
+
+  .illustration {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0 18px;
+    color: var(--accent, var(--p-ketosis));
+    transition: color 600ms ease;
+  }
+  .illustration svg { display: block; }
+
+  .detail-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .detail-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .detail-title {
+    font-family: var(--serif);
+    font-size: 34px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  .detail-window {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-top: 6px;
+  }
+  .tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--bone-dim);
+    margin: 10px 0 20px;
+    padding-left: 12px;
+    border-left: 1px solid var(--accent, var(--p-ketosis));
+  }
+  .detail p {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--bone-dim);
+    margin: 0 0 14px;
+  }
+  .detail p strong { color: var(--bone); font-weight: 500; }
+  .detail p em { font-style: italic; color: var(--bone); }
+
+  .effects-block { margin-top: 22px; }
+  .effects-heading {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .effects-heading::after {
+    content: ""; flex: 1; height: 1px;
+    background: var(--line);
+  }
+  .effects-list { list-style: none; padding: 0; margin: 0; }
+  .effects-list li {
+    position: relative;
+    padding: 5px 0 5px 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+  }
+  .effects-list li strong { color: var(--bone); font-weight: 500; }
+  .effects-list li em { font-style: italic; color: var(--bone); }
+  .effects-list.dots li::before {
+    content: "";
+    position: absolute;
+    left: 2px; top: 12px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent, var(--p-ketosis));
+    box-shadow: 0 0 6px var(--accent, var(--p-ketosis));
+  }
+  .effects-list.dashes li::before {
+    content: "—";
+    position: absolute;
+    left: 0; top: 5px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .note {
+    margin-top: 20px;
+    font-size: 13px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    line-height: 1.6;
+    background: rgba(241, 231, 210, 0.015);
+  }
+  .note .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent, var(--p-ketosis));
+    display: block;
+    margin-bottom: 6px;
+  }
+  .note .body { color: var(--bone-dim); line-height: 1.6; }
+
+  .viewing-other {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(241, 231, 210, 0.04);
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .viewing-other:hover { color: var(--bone-dim); }
+  .viewing-other .arrow { opacity: 0.6; }
+
+  .section-head {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 2px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-head span.hint { color: var(--muted-dim); }
+  .section-head button.textlink { font-size: 10px; padding: 0; }
+
+  .phase-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 40px;
+  }
+  .phase-cell {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 10px 8px 12px;
+    cursor: pointer;
+    background: transparent;
+    color: inherit;
+    font-family: var(--sans);
+    text-align: left;
+    transition: border-color 250ms ease, background 250ms ease;
+  }
+  .phase-cell:hover { border-color: rgba(241, 231, 210, 0.22); background: rgba(241, 231, 210, 0.02); }
+  .phase-cell[data-current="true"] {
+    border-color: var(--cell-color);
+    background: rgba(241, 231, 210, 0.03);
+  }
+  .phase-cell[data-viewing="true"] {
+    border-color: var(--cell-color);
+    background: rgba(241, 231, 210, 0.05);
+  }
+  .phase-cell .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cell-color);
+    margin-bottom: 8px;
+    box-shadow: 0 0 8px var(--cell-color);
+    opacity: 0.9;
+  }
+  .phase-cell .cell-name {
+    font-family: var(--serif);
+    font-size: 13px;
+    line-height: 1.1;
+    color: var(--bone);
+    margin-bottom: 4px;
+  }
+  .phase-cell .cell-range {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .history-section {
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    margin-top: 10px;
+  }
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 400ms ease;
+  }
+  .history-list.open { max-height: 3000px; }
+  .history-empty {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    font-family: var(--serif);
+    padding: 6px 0;
+  }
+  .history-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    align-items: center;
+  }
+  .history-item .swatch {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--item-color);
+    box-shadow: 0 0 10px var(--item-color);
+  }
+  .history-item .info .range {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .history-item .info .summary {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--bone);
+  }
+  .history-item .info .summary em {
+    font-style: italic;
+    color: var(--item-color);
+  }
+  .history-item .del {
+    background: transparent;
+    border: none;
+    color: var(--muted-dim);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 2px;
+    transition: color 200ms ease, background 200ms ease;
+  }
+  .history-item .del:hover { color: var(--p-autophagy); background: rgba(168, 61, 32, 0.08); }
+
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(10, 7, 5, 0.75);
+    backdrop-filter: blur(10px);
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--bg-lift);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 28px 26px 22px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+    color: var(--bone);
+  }
+  .modal p {
+    margin: 0 0 18px;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+    line-height: 1.5;
+  }
+  .modal label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin: 12px 0 8px;
+  }
+  .modal input[type="datetime-local"] {
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--bone);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 10px 12px;
+    color-scheme: dark;
+  }
+  .modal .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  .modal .err {
+    color: var(--p-autophagy);
+    font-size: 12px;
+    margin-top: 10px;
+    font-family: var(--mono);
+  }
+
+  footer {
+    margin-top: 48px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+    text-align: center;
+    line-height: 1.6;
+  }
+  footer em { font-family: var(--serif); font-style: italic; letter-spacing: 0.06em; text-transform: none; color: var(--muted); }
+
+  .reveal { opacity: 0; transform: translateY(8px); animation: rise 900ms cubic-bezier(.2,.7,.2,1) forwards; }
+  .r1 { animation-delay: 60ms; }
+  .r2 { animation-delay: 180ms; }
+  .r3 { animation-delay: 340ms; }
+  .r4 { animation-delay: 500ms; }
+  .r5 { animation-delay: 640ms; }
+  .r6 { animation-delay: 780ms; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 420px) {
+    .phase-strip { grid-template-columns: repeat(3, 1fr); }
+    .elapsed { font-size: 38px; }
+    .detail-title { font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <header class="topbar reveal r1">
+    <div class="brand">
+      <span class="mark"></span>
+      CRUCIBLE
+      <em>— a fasting vessel</em>
+    </div>
+    <div class="status-chip" id="statusChip">DORMANT</div>
+  </header>
+
+  <div class="ring-wrap reveal r2">
+    <svg class="ring" viewBox="-160 -160 320 320" role="img" aria-hidden="true">
+      <circle class="ring-track" r="140" fill="none" stroke-width="1" />
+      <g id="ticks"></g>
+      <g id="phaseArcs"></g>
+      <circle id="progress" class="progress-arc" r="140" />
+    </svg>
+    <div class="center">
+      <div class="phase-name" id="phaseName">—</div>
+      <div class="elapsed idle" id="elapsed">— — : — —</div>
+      <div class="subline" id="subline">press ignite to begin</div>
+    </div>
+  </div>
+
+  <div class="controls reveal r3">
+    <button class="btn primary" id="igniteBtn">Ignite</button>
+  </div>
+  <div class="controls-sub reveal r3">
+    <button class="textlink" id="adjustBtn" disabled>Adjust start</button>
+    <button class="textlink" id="logPastBtn">Log a past fast</button>
+  </div>
+
+  <section class="detail reveal r4" id="detail">
+    <div id="viewingBanner" style="display:none"></div>
+    <div class="illustration" id="illustration"></div>
+    <div class="detail-head">
+      <div>
+        <div class="detail-eyebrow" id="detailEyebrow">PHASE 01 · FED</div>
+        <h2 class="detail-title" id="detailTitle">Fed State</h2>
+      </div>
+      <div class="detail-window" id="detailWindow">0 – 4 h</div>
+    </div>
+    <div class="tagline" id="detailTagline"></div>
+    <div id="detailProse"></div>
+
+    <div class="effects-block">
+      <div class="effects-heading">In your body right now</div>
+      <ul class="effects-list dots" id="effectsBody"></ul>
+    </div>
+
+    <div class="effects-block">
+      <div class="effects-heading">What you might feel</div>
+      <ul class="effects-list dashes" id="effectsFeel"></ul>
+    </div>
+
+    <div class="note">
+      <span class="label" id="noteLabel"></span>
+      <span class="body" id="noteBody"></span>
+    </div>
+  </section>
+
+  <div class="section-head reveal r5">
+    <span>The six stages</span>
+    <span class="hint">tap to explore</span>
+  </div>
+  <div class="phase-strip reveal r5" id="phaseStrip"></div>
+
+  <div class="history-section reveal r6">
+    <div class="section-head">
+      <span id="historyLabel">Your fasts</span>
+      <button class="textlink" id="toggleHistory">Empty</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <footer class="reveal r6">
+    Not medical advice. Phase times are approximate —<br>
+    metabolism, activity and adaptation all shift the <em>threshold</em>.
+  </footer>
+</main>
+
+<div class="modal-backdrop" id="adjustModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Adjust start time</h3>
+    <p>Set the actual moment this fast began — the phases will recalibrate.</p>
+    <label for="adjustInput">Start moment</label>
+    <input type="datetime-local" id="adjustInput" />
+    <div class="err" id="adjustErr" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelAdjust">Cancel</button>
+      <button class="btn primary" id="saveAdjust">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="pastModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Log a past fast</h3>
+    <p>Record a fast you completed but didn't track live. It will enter your history with the deepest phase reached.</p>
+    <label for="pastStart">Started</label>
+    <input type="datetime-local" id="pastStart" />
+    <label for="pastEnd">Ended</label>
+    <input type="datetime-local" id="pastEnd" />
+    <div class="err" id="pastErr" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelPast">Cancel</button>
+      <button class="btn primary" id="savePast">Log fast</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================================
+  //  ILLUSTRATIONS
+  // ==========================================================
+  function iconSvg(id) {
+    const frame = `<circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.25"/>`;
+    const inner = {
+      fed: `
+        <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.35"/>
+        <circle cx="36" cy="40" r="3.2" fill="currentColor" opacity="0.95"/>
+        <circle cx="56" cy="36" r="2.6" fill="currentColor" opacity="0.85"/>
+        <circle cx="62" cy="52" r="3.6" fill="currentColor" opacity="0.95"/>
+        <circle cx="42" cy="58" r="2.8" fill="currentColor" opacity="0.85"/>
+        <circle cx="50" cy="46" r="2.2" fill="currentColor" opacity="0.8"/>
+        <circle cx="58" cy="62" r="2.4" fill="currentColor" opacity="0.85"/>
+        <circle cx="38" cy="50" r="2.6" fill="currentColor" opacity="0.85"/>
+        <circle cx="48" cy="62" r="1.8" fill="currentColor" opacity="0.75"/>
+      `,
+      early: `
+        <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.35"/>
+        <circle cx="40" cy="38" r="2.6" fill="currentColor" opacity="0.7"/>
+        <circle cx="55" cy="42" r="2.2" fill="currentColor" opacity="0.6"/>
+        <circle cx="46" cy="48" r="2.0" fill="currentColor" opacity="0.55"/>
+        <circle cx="60" cy="55" r="1.8" fill="currentColor" opacity="0.45"/>
+        <line x1="50" y1="65" x2="50" y2="82" stroke="currentColor" stroke-width="0.8" opacity="0.5" stroke-dasharray="1 3"/>
+        <circle cx="50" cy="85" r="1.4" fill="currentColor" opacity="0.6"/>
+      `,
+      switch: `
+        <path d="M 18 50 Q 50 18 82 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.75" stroke-linecap="round"/>
+        <path d="M 18 50 Q 50 82 82 50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.75" stroke-linecap="round"/>
+        <circle cx="18" cy="50" r="2.4" fill="currentColor" opacity="0.8"/>
+        <circle cx="82" cy="50" r="2.4" fill="currentColor" opacity="0.8"/>
+        <circle cx="50" cy="50" r="4" fill="currentColor"/>
+        <circle cx="50" cy="50" r="7.5" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+      `,
+      ketosis: `
+        <path d="M 50 82
+                 C 34 76 30 60 38 48
+                 C 42 42 46 44 45 38
+                 C 44 30 50 22 52 18
+                 C 54 28 58 34 56 42
+                 C 62 46 66 54 62 64
+                 C 60 74 56 80 50 82 Z"
+              fill="currentColor" opacity="0.88"/>
+        <path d="M 50 72
+                 C 44 68 42 60 46 54
+                 C 49 50 52 54 52 58
+                 C 54 64 52 70 50 72 Z"
+              fill="var(--bg)" opacity="0.45"/>
+      `,
+      autophagy: `
+        <path d="M 50 20 A 28 28 0 1 1 26 62"
+              fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" opacity="0.9"/>
+        <path d="M 26 62
+                 C 22 63 20 60 22 57
+                 C 26 56 30 58 30 62
+                 C 30 66 24 67 22 63"
+              fill="currentColor" opacity="0.95"/>
+        <path d="M 34 60 Q 30 58 28 60" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.65" stroke-linecap="round"/>
+        <circle cx="25" cy="60" r="0.9" fill="var(--bg)"/>
+      `,
+      deep: `
+        <g>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7"/>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7" transform="rotate(60 50 50)"/>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7" transform="rotate(120 50 50)"/>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7" transform="rotate(180 50 50)"/>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7" transform="rotate(240 50 50)"/>
+          <ellipse cx="50" cy="28" rx="3.2" ry="11" fill="currentColor" opacity="0.7" transform="rotate(300 50 50)"/>
+        </g>
+        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.45"/>
+        <circle cx="50" cy="50" r="5" fill="currentColor"/>
+        <circle cx="50" cy="50" r="2" fill="var(--bg)" opacity="0.9"/>
+      `
+    };
+    return `<svg width="104" height="104" viewBox="0 0 100 100">${frame}${inner[id] || ''}</svg>`;
+  }
+
+  // ==========================================================
+  //  PHASE DATA
+  // ==========================================================
+  const PHASES = [
+    {
+      id: 'fed', number: '01',
+      name: 'Fed State', subtitle: 'Anabolic',
+      start: 0, end: 4,
+      raw: '#e8d9b0',
+      tagline: 'Nutrients are being absorbed and insulin is elevated — the storage window.',
+      prose: [
+        "Your body is processing the meal. Glucose flows into the bloodstream, <strong>insulin</strong> surges to shuttle it into cells, and any excess is packed away as <strong>glycogen</strong> in the liver and muscles or converted to fat for longer-term storage.",
+        "Insulin is the master storage hormone. While it's high, fat burning is completely suppressed — the body has abundant fuel arriving, so it has no reason to reach for its reserves. This is the 'build' mode: <em>mTOR</em> signaling is active, protein synthesis runs, and any training stimulus you gave earlier is consolidated.",
+        "Nothing metabolically rebellious happens here. But every fast begins at the edge of this phase, and how you ate matters: a high-carb meal keeps insulin elevated longer than a high-fat or high-protein one."
+      ],
+      body: [
+        "<strong>Insulin</strong> elevated; <strong>glucagon</strong> suppressed",
+        "<strong>mTOR</strong> active — growth and protein synthesis prioritized",
+        "Glucose being stored as glycogen in liver and muscle",
+        "Roughly 40% of circulation redirected to digestion",
+        "Fat oxidation fully offline",
+        "Diet-induced thermogenesis adds ~5–10% to calorie burn"
+      ],
+      feel: [
+        "Satiation, a subtle drowsiness after heavier meals",
+        "Stable but not sharp energy",
+        "Warmth from the work of digestion"
+      ],
+      note: {
+        label: "Detail",
+        text: "The insulin response lasts longer than most people assume. A carb-heavy meal can keep you functionally 'fed' for 3–4 hours, which is why true fasting windows really only begin after that threshold closes."
+      }
+    },
+    {
+      id: 'early', number: '02',
+      name: 'Post-Absorptive', subtitle: 'Early fasting',
+      start: 4, end: 12,
+      raw: '#d4b577',
+      tagline: 'Insulin drops, glucagon rises. The liver begins releasing its stores.',
+      prose: [
+        "Blood sugar starts to fall and insulin retreats. Its counterpart, <strong>glucagon</strong>, takes the lead and signals the liver to begin breaking down stored glycogen — a process called <em>glycogenolysis</em> — to maintain steady blood glucose.",
+        "Your brain still runs primarily on glucose at this stage. A rested adult holds roughly 10–12 hours of glycogen reserves in the liver, which is why most skipped breakfasts live right here, in a kind of metabolic neutral: drawn down, but not yet transformed.",
+        "Small-scale <em>gluconeogenesis</em> starts in the background — the liver and kidneys begin manufacturing glucose from lactate, glycerol and amino acids. Fat oxidation begins at low levels. The system is preparing."
+      ],
+      body: [
+        "Insulin falling; <strong>glucagon</strong> rising",
+        "Liver glycogen steadily depleting",
+        "Gluconeogenesis beginning (liver + kidneys)",
+        "Modest fat oxidation coming online",
+        "<strong>Ghrelin</strong> (hunger hormone) pulses around your usual meal times",
+        "Sympathetic tone edging up"
+      ],
+      feel: [
+        "Usually normal; momentary hunger at habitual meal times",
+        "Stable, even energy",
+        "No dramatic shift yet — the interesting things haven't started"
+      ],
+      note: {
+        label: "Detail",
+        text: "Ghrelin is not constant — it's conditioned to when you usually eat. If you always break your fast at noon, you'll feel hungry at noon for the first few days of a new pattern, then the pulses quiet down. Your hunger is largely a schedule."
+      }
+    },
+    {
+      id: 'switch', number: '03',
+      name: 'Metabolic Switch', subtitle: 'Lipolysis accelerates',
+      start: 12, end: 16,
+      raw: '#d1934a',
+      tagline: 'Glycogen runs thin. The body pivots toward fat as primary fuel.',
+      prose: [
+        "Liver glycogen is now largely depleted — 80–90% gone. The body makes its real pivot. <strong>Lipolysis</strong>, the release of free fatty acids from adipose tissue, accelerates sharply. <strong>Norepinephrine</strong> rises, both preserving muscle and driving fat mobilization. <strong>Growth hormone</strong> begins its climb.",
+        "This is the literal 'switch' referred to as <em>metabolic flexibility</em> — the capacity to move cleanly between fuel sources. How smoothly you traverse it depends largely on how often your body has had to. Fat-adapted people transition almost silently; those new to fasting often feel every hour of it.",
+        "The first small quantities of <strong>ketone bodies</strong> appear. Inflammation markers begin to drop. Insulin sensitivity is improving. The body is, in a very real sense, recalibrating."
+      ],
+      body: [
+        "Liver glycogen 80–90% depleted",
+        "<strong>Lipolysis</strong> accelerating; free fatty acids in circulation rising",
+        "<strong>Growth hormone</strong> climbing",
+        "<strong>Norepinephrine</strong> rising — mobilizes fat, preserves lean mass",
+        "First measurable ketone production",
+        "Insulin sensitivity improving",
+        "Early drop in inflammatory markers"
+      ],
+      feel: [
+        "A hunger wave, often around hour 14–16, sometimes sharp",
+        "Possibly mild brain fog as the switch completes",
+        "Cooler hands, small shifts in body temperature",
+        "The wave typically passes within 20–30 minutes"
+      ],
+      note: {
+        label: "Detail",
+        text: "The hunger pang here is almost never real starvation. It's your body signaling for its usual fuel source while the alternative is still coming online. If you wait it out — tea, water, a walk — ketone production picks up and the signal silences. Most people discover that hunger, for the most part, is a wave, not a rising tide."
+      }
+    },
+    {
+      id: 'ketosis', number: '04',
+      name: 'Ketosis', subtitle: 'Ketogenic state',
+      start: 16, end: 24,
+      raw: '#c7652e',
+      tagline: 'The liver manufactures ketones. The brain learns to burn them.',
+      prose: [
+        "The liver converts fatty acids into <strong>ketone bodies</strong> — primarily β-hydroxybutyrate and acetoacetate, with a small amount of acetone (responsible for the faintly metallic breath some people notice). These molecules cross the blood-brain barrier and fuel neurons. In deeper ketosis, the brain can draw 60–70% of its energy from them.",
+        "This is the state most intermittent fasting practitioners are aiming for. <strong>BDNF</strong> — brain-derived neurotrophic factor, involved in neurogenesis and neuroprotection — rises, and is often correlated with the reported mental clarity and calm focus. Growth hormone is significantly elevated. Cortisol rises too, which is normal and simply reflects fuel mobilization.",
+        "β-hydroxybutyrate is the subtle one. It's not just fuel — it's a <em>signaling molecule</em>. It inhibits HDAC enzymes (histone deacetylases), which effectively shifts gene expression toward stress resistance and longevity-associated patterns. You are not just burning differently; in a quiet way, your body is being rewritten."
+      ],
+      body: [
+        "<strong>Ketone bodies</strong> clearly present: β-hydroxybutyrate, acetoacetate, acetone",
+        "Brain drawing up to 60–70% of energy from ketones",
+        "<strong>BDNF</strong> elevated — neurogenesis, neuroprotection",
+        "<strong>Growth hormone</strong> significantly elevated",
+        "HDAC inhibition via β-HB — gene expression shifts toward stress resistance",
+        "NAD+/NADH ratio improving, <strong>sirtuins</strong> activating",
+        "Insulin near its daily minimum — fat burning maximized",
+        "Appetite typically <em>drops</em> — ketones themselves suppress hunger"
+      ],
+      feel: [
+        "Clean, focused alertness — the 'ketone clarity' people describe",
+        "Reduced hunger, often surprisingly so",
+        "Occasionally a faintly metallic taste or breath (acetone)",
+        "For some: subtle warmth, euphoria; for others: transient 'keto flu' from electrolyte loss"
+      ],
+      note: {
+        label: "Beyond fuel",
+        text: "The HDAC effect is worth sitting with. Your metabolic state is influencing which genes are expressed — nudging the system toward antioxidant defenses, DNA repair, and mitochondrial resilience. This is part of why short, regular fasts appear to yield disproportionate effects: the signal matters as much as the fuel."
+      }
+    },
+    {
+      id: 'autophagy', number: '05',
+      name: 'Autophagy', subtitle: 'Cellular recycling',
+      start: 24, end: 48,
+      raw: '#a83d20',
+      tagline: 'Cells begin eating their own damage. The household-cleaning hours.',
+      prose: [
+        "Autophagy — literally <em>self-eating</em> — is significantly upregulated. Cells identify damaged proteins, misfolded aggregates, and worn-out organelles, package them inside double-membraned vesicles called autophagosomes, and recycle the components back into raw material.",
+        "<strong>mTOR</strong>, the master 'grow' switch, is strongly suppressed. <strong>AMPK</strong>, the 'maintain' switch, is strongly active. The cell shifts from <em>building new things</em> to <em>repairing the things it already has</em>. One subprocess, <em>mitophagy</em>, specifically targets worn-out mitochondria — making room for fresh ones that respire more efficiently.",
+        "Research links autophagy to clearance of protein aggregates implicated in neurodegenerative disease, to reduced inflammation, and to the turnover of senescent 'zombie' cells that secrete damaging signals but refuse to die. The effects aren't instantaneous miracles — they're a slow shift in the ratio of damaged to healthy components across your tissues."
+      ],
+      body: [
+        "<strong>Autophagy</strong> significantly upregulated across tissues",
+        "<strong>mTOR</strong> strongly suppressed; <strong>AMPK</strong> strongly active",
+        "<strong>Mitophagy</strong> clearing worn mitochondria",
+        "Gut enterocytes regenerating (intestinal lining turns over quickly)",
+        "Inflammatory markers (IL-6, TNF-α) dropping",
+        "Insulin sensitivity dramatically improved",
+        "Immune cell turnover beginning",
+        "Senescent cell clearance increasing"
+      ],
+      feel: [
+        "Paradoxically little hunger (ketones + near-zero insulin)",
+        "Stable, 'quiet' energy — different from fed-state energy",
+        "Lighter mental state; some report vivid dreams",
+        "Slight chill sometimes; sharper sense of smell"
+      ],
+      note: {
+        label: "2016 Nobel",
+        text: "Yoshinori Ohsumi received the Nobel Prize in Physiology or Medicine for uncovering autophagy's genetic and mechanistic basis in yeast. Nearly every insight we apply to fasting today descends from those experiments. Direct measurement of autophagy in living humans remains hard, so much of what we extrapolate comes from animal models paired with indirect human markers — worth keeping in mind when claims feel overly precise."
+      }
+    },
+    {
+      id: 'deep', number: '06',
+      name: 'Deep Healing', subtitle: 'Regeneration',
+      start: 48, end: 72,
+      raw: '#7c2318',
+      tagline: 'Growth hormone peaks. Stem cell activity rises. Extended-fast territory.',
+      prose: [
+        "<strong>Growth hormone</strong> can reach up to 5× baseline — a surge that partly explains why humans preserve lean mass during extended fasts better than most animal models would predict. <strong>IGF-1</strong>, its downstream growth signal, drops sharply, and that drop is associated with cancer-protective and longevity-adjacent effects in research settings.",
+        "Work from Valter Longo's lab suggests prolonged fasts (3+ days) trigger a <em>stem-cell-based regeneration</em> of parts of the immune system: old, worn hematopoietic stem cells are cleared, and new ones activate. Much of the specific research is on a medically supervised fasting-mimicking diet rather than pure water fasting, so apply the claim with appropriate calibration — the direction is well-supported; exact magnitudes and durations vary by protocol.",
+        "Fat loss in this window is heavily weighted toward <em>visceral</em> fat, the metabolically dangerous kind surrounding organs. <strong>Leptin</strong> is at its lowest, which is one of the rare conditions under which leptin receptors can recover sensitivity — relevant if you've been chronically overeating. Gut microbiome composition also shifts, with certain fasting-adapted species becoming relatively more dominant."
+      ],
+      body: [
+        "<strong>Growth hormone</strong> up to ~5× baseline",
+        "<strong>IGF-1</strong> dropped sharply",
+        "Hematopoietic <strong>stem cell</strong> activity rising (research context)",
+        "Deeper autophagy and senescent cell clearance",
+        "Fat loss weighted toward visceral fat",
+        "<strong>Leptin</strong> at its lowest — sensitivity can reset",
+        "Ketone production near peak, fully fueling the brain",
+        "Gut microbiome composition shifting",
+        "Some studies suggest epigenetic markers move toward younger profiles — a promising but still-emerging area"
+      ],
+      feel: [
+        "Wide variation — from clarity and calm to weakness and chill",
+        "Mental spaciousness that's hard to describe without sounding mystical",
+        "Sleep may shorten; dreams often intensify",
+        "Sense of smell sharpens noticeably for most"
+      ],
+      note: {
+        label: "Caution",
+        text: "Beyond 48 hours, medical supervision is genuinely recommended if you haven't been here before — especially if you take medications (particularly for blood sugar or pressure), are underweight, have a history of disordered eating, or have any chronic condition. Most of fasting's benefits are accessible in the 16–24h range, repeated over time. This phase is described so you understand what's happening, not as a default target."
+      }
+    }
+  ];
+
+  const TOTAL_HOURS = 72;
+  const RADIUS = 140;
+  const CIRC = 2 * Math.PI * RADIUS;
+
+  const ticksGroup = document.getElementById('ticks');
+  const arcsGroup = document.getElementById('phaseArcs');
+  const progressArc = document.getElementById('progress');
+  const phaseNameEl = document.getElementById('phaseName');
+  const elapsedEl = document.getElementById('elapsed');
+  const sublineEl = document.getElementById('subline');
+  const igniteBtn = document.getElementById('igniteBtn');
+  const adjustBtn = document.getElementById('adjustBtn');
+  const logPastBtn = document.getElementById('logPastBtn');
+  const statusChip = document.getElementById('statusChip');
+  const detailEl = document.getElementById('detail');
+  const illustrationEl = document.getElementById('illustration');
+  const detailEyebrow = document.getElementById('detailEyebrow');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailWindow = document.getElementById('detailWindow');
+  const detailTagline = document.getElementById('detailTagline');
+  const detailProse = document.getElementById('detailProse');
+  const effectsBody = document.getElementById('effectsBody');
+  const effectsFeel = document.getElementById('effectsFeel');
+  const noteLabel = document.getElementById('noteLabel');
+  const noteBody = document.getElementById('noteBody');
+  const viewingBanner = document.getElementById('viewingBanner');
+  const phaseStrip = document.getElementById('phaseStrip');
+  const historyList = document.getElementById('historyList');
+  const historyLabel = document.getElementById('historyLabel');
+  const toggleHistoryBtn = document.getElementById('toggleHistory');
+
+  const adjustModal = document.getElementById('adjustModal');
+  const adjustInput = document.getElementById('adjustInput');
+  const adjustErr = document.getElementById('adjustErr');
+  const saveAdjust = document.getElementById('saveAdjust');
+  const cancelAdjust = document.getElementById('cancelAdjust');
+
+  const pastModal = document.getElementById('pastModal');
+  const pastStart = document.getElementById('pastStart');
+  const pastEnd = document.getElementById('pastEnd');
+  const pastErr = document.getElementById('pastErr');
+  const savePast = document.getElementById('savePast');
+  const cancelPast = document.getElementById('cancelPast');
+
+  function buildRing() {
+    PHASES.forEach(p => {
+      const startFrac = p.start / TOTAL_HOURS;
+      const endFrac   = p.end   / TOTAL_HOURS;
+      const arcLen    = (endFrac - startFrac) * CIRC;
+      const gap       = 2;
+      const visible   = Math.max(arcLen - gap, 0);
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('r', RADIUS);
+      c.setAttribute('class', 'phase-arc');
+      c.setAttribute('data-phase-id', p.id);
+      c.setAttribute('stroke', p.raw);
+      c.setAttribute('stroke-dasharray', `${visible} ${CIRC - visible}`);
+      c.setAttribute('stroke-dashoffset', `${-startFrac * CIRC}`);
+      arcsGroup.appendChild(c);
+    });
+    PHASES.forEach((p, i) => {
+      if (i === 0) return;
+      const frac = p.start / TOTAL_HOURS;
+      const angle = frac * 2 * Math.PI - Math.PI / 2;
+      const r1 = RADIUS - 8, r2 = RADIUS + 8;
+      const x1 = Math.cos(angle) * r1, y1 = Math.sin(angle) * r1;
+      const x2 = Math.cos(angle) * r2, y2 = Math.sin(angle) * r2;
+      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+      l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+      l.setAttribute('class', 'tick tick-major');
+      l.setAttribute('transform', 'rotate(90)');
+      ticksGroup.appendChild(l);
+    });
+    progressArc.setAttribute('stroke', 'var(--p-fed)');
+    progressArc.setAttribute('stroke-dasharray', `${CIRC} ${CIRC}`);
+    progressArc.setAttribute('stroke-dashoffset', CIRC);
+  }
+  buildRing();
+
+  function buildStrip() {
+    PHASES.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'phase-cell';
+      btn.style.setProperty('--cell-color', p.raw);
+      btn.dataset.phaseId = p.id;
+      btn.innerHTML = `
+        <div class="dot"></div>
+        <div class="cell-name">${p.name}</div>
+        <div class="cell-range">${p.start}–${p.end}h</div>
+      `;
+      btn.addEventListener('click', () => viewPhase(p.id, true));
+      phaseStrip.appendChild(btn);
+    });
+  }
+  buildStrip();
+
+  // state
+  let startTime = null;
+  let viewingPhaseId = null;
+  let history = [];
+  let historyOpen = false;
+  let tickHandle = null;
+
+  function loadState() {
+    try {
+      const s = localStorage.getItem('fast:start_time');
+      if (s) {
+        const n = parseInt(s, 10);
+        if (!isNaN(n)) startTime = n;
+      }
+      const h = localStorage.getItem('fast:history');
+      if (h) {
+        try { history = JSON.parse(h) || []; } catch { history = []; }
+      }
+    } catch {}
+  }
+  function saveStart(ms) {
+    try {
+      if (ms === null) localStorage.removeItem('fast:start_time');
+      else localStorage.setItem('fast:start_time', String(ms));
+    } catch {}
+  }
+  function saveHistory() {
+    try {
+      localStorage.setItem('fast:history', JSON.stringify(history));
+    } catch {}
+  }
+
+  function currentPhaseFromHours(hours) {
+    for (const p of PHASES) {
+      if (hours >= p.start && hours < p.end) return p;
+    }
+    return hours >= PHASES[PHASES.length - 1].end ? PHASES[PHASES.length - 1] : PHASES[0];
+  }
+  function deepestPhaseFromHours(hours) {
+    let deepest = PHASES[0];
+    for (const p of PHASES) if (hours >= p.start) deepest = p;
+    return deepest;
+  }
+  const pad = n => String(n).padStart(2, '0');
+  function formatDuration(ms) {
+    const total = Math.max(0, Math.floor(ms / 60000));
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return `${h}h ${pad(m)}m`;
+  }
+  function formatDateRange(a, b) {
+    const da = new Date(a), db = new Date(b);
+    const sameDay = da.toDateString() === db.toDateString();
+    const opts = { month: 'short', day: 'numeric' };
+    const dayFmt = d => d.toLocaleDateString(undefined, opts);
+    const timeFmt = d => d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (sameDay) return `${dayFmt(da)} · ${timeFmt(da)} → ${timeFmt(db)}`;
+    return `${dayFmt(da)} ${timeFmt(da)} → ${dayFmt(db)} ${timeFmt(db)}`;
+  }
+
+  function renderTimer() {
+    const now = Date.now();
+    const hasFast = startTime !== null;
+
+    if (!hasFast) {
+      elapsedEl.classList.add('idle');
+      elapsedEl.textContent = '— — : — —';
+      phaseNameEl.textContent = 'Dormant';
+      phaseNameEl.style.color = '';
+      sublineEl.textContent = 'press ignite to begin';
+      progressArc.setAttribute('stroke-dashoffset', CIRC);
+      statusChip.textContent = 'DORMANT';
+      statusChip.setAttribute('data-active', 'false');
+      arcsGroup.querySelectorAll('.phase-arc').forEach(a => a.classList.remove('passed', 'current'));
+      if (viewingPhaseId === null) renderDetail(PHASES[0]);
+      updateStripHighlight(null);
+      return;
+    }
+
+    const elapsedMs = Math.max(0, now - startTime);
+    const h = Math.floor(elapsedMs / 3600000);
+    const m = Math.floor((elapsedMs % 3600000) / 60000);
+    const s = Math.floor((elapsedMs % 60000) / 1000);
+    const hoursDecimal = elapsedMs / 3600000;
+
+    elapsedEl.classList.remove('idle');
+    elapsedEl.innerHTML = `${pad(h)}<span class="sep">:</span>${pad(m)}<span class="seconds">:${pad(s)}</span>`;
+
+    const phase = currentPhaseFromHours(hoursDecimal);
+    phaseNameEl.textContent = phase.name;
+    phaseNameEl.style.color = phase.raw;
+    sublineEl.textContent = phase.subtitle;
+
+    const progressFrac = Math.min(hoursDecimal / TOTAL_HOURS, 1);
+    progressArc.setAttribute('stroke', phase.raw);
+    progressArc.setAttribute('stroke-dashoffset', CIRC * (1 - progressFrac));
+
+    arcsGroup.querySelectorAll('.phase-arc').forEach(a => {
+      const pid = a.getAttribute('data-phase-id');
+      const p = PHASES.find(x => x.id === pid);
+      a.classList.remove('passed', 'current');
+      if (hoursDecimal >= p.end) a.classList.add('passed');
+      else if (hoursDecimal >= p.start && hoursDecimal < p.end) a.classList.add('current');
+    });
+
+    statusChip.textContent = `FASTING · ${phase.subtitle.toUpperCase()}`;
+    statusChip.setAttribute('data-active', 'true');
+
+    if (viewingPhaseId === null) renderDetail(phase);
+    updateStripHighlight(phase.id);
+  }
+
+  function renderDetail(phase) {
+    detailEl.style.setProperty('--accent', phase.raw);
+    illustrationEl.innerHTML = iconSvg(phase.id);
+    detailEyebrow.textContent = `Phase ${phase.number} · ${phase.subtitle}`;
+    detailTitle.textContent = phase.name;
+    detailWindow.textContent = `${phase.start} – ${phase.end} h`;
+    detailTagline.textContent = phase.tagline;
+
+    detailProse.innerHTML = '';
+    phase.prose.forEach(para => {
+      const p = document.createElement('p');
+      p.innerHTML = para;
+      detailProse.appendChild(p);
+    });
+
+    effectsBody.innerHTML = '';
+    phase.body.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = item;
+      effectsBody.appendChild(li);
+    });
+    effectsFeel.innerHTML = '';
+    phase.feel.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = item;
+      effectsFeel.appendChild(li);
+    });
+
+    noteLabel.textContent = phase.note.label;
+    noteBody.innerHTML = phase.note.text;
+
+    const browsing = viewingPhaseId !== null;
+    if (browsing) {
+      viewingBanner.style.display = 'inline-flex';
+      viewingBanner.className = 'viewing-other';
+      viewingBanner.innerHTML = `<span class="arrow">←</span> Return to current phase`;
+      viewingBanner.onclick = () => { viewingPhaseId = null; renderTimer(); };
+    } else {
+      viewingBanner.style.display = 'none';
+    }
+  }
+
+  function updateStripHighlight(currentId) {
+    phaseStrip.querySelectorAll('.phase-cell').forEach(c => {
+      const pid = c.dataset.phaseId;
+      c.setAttribute('data-current', pid === currentId ? 'true' : 'false');
+      c.setAttribute('data-viewing', pid === viewingPhaseId ? 'true' : 'false');
+    });
+  }
+
+  function viewPhase(id, fromUser) {
+    const phase = PHASES.find(p => p.id === id);
+    if (!phase) return;
+    const hoursDecimal = startTime ? (Date.now() - startTime) / 3600000 : 0;
+    const activePhase = startTime ? currentPhaseFromHours(hoursDecimal) : null;
+    if (fromUser && activePhase && activePhase.id === id) {
+      viewingPhaseId = null;
+    } else if (fromUser) {
+      viewingPhaseId = id;
+    }
+    renderDetail(phase);
+    updateStripHighlight(activePhase ? activePhase.id : null);
+    detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    historyLabel.textContent = history.length
+      ? `Your fasts · ${history.length}`
+      : 'Your fasts';
+    toggleHistoryBtn.textContent = historyOpen ? 'Hide' : (history.length ? 'Show' : 'Empty');
+    toggleHistoryBtn.disabled = history.length === 0;
+    historyList.classList.toggle('open', historyOpen);
+    if (!historyOpen) return;
+
+    if (history.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'history-empty';
+      div.textContent = 'No past fasts logged yet.';
+      historyList.appendChild(div);
+      return;
+    }
+
+    const sorted = [...history].sort((a, b) => b.start - a.start);
+    sorted.forEach(entry => {
+      const dur = entry.end - entry.start;
+      const hours = dur / 3600000;
+      const deepest = deepestPhaseFromHours(hours);
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.style.setProperty('--item-color', deepest.raw);
+      item.innerHTML = `
+        <div class="swatch"></div>
+        <div class="info">
+          <div class="range">${formatDateRange(entry.start, entry.end)}</div>
+          <div class="summary">${formatDuration(dur)} · reached <em>${deepest.name}</em></div>
+        </div>
+        <button class="del" data-id="${entry.id}" aria-label="Delete">×</button>
+      `;
+      item.querySelector('.del').addEventListener('click', e => {
+        const id = e.currentTarget.dataset.id;
+        history = history.filter(h => h.id !== id);
+        saveHistory();
+        renderHistory();
+      });
+      historyList.appendChild(item);
+    });
+  }
+
+  toggleHistoryBtn.addEventListener('click', () => {
+    if (!history.length) return;
+    historyOpen = !historyOpen;
+    renderHistory();
+  });
+
+  function startFast() {
+    startTime = Date.now();
+    viewingPhaseId = null;
+    saveStart(startTime);
+    updateButtons();
+    renderTimer();
+  }
+  function endFast() {
+    if (!confirm('End the current fast? It will be saved to your history.')) return;
+    const end = Date.now();
+    if (startTime && end > startTime) {
+      history.push({ id: 'h' + end + Math.floor(Math.random()*1000), start: startTime, end });
+      saveHistory();
+    }
+    startTime = null;
+    viewingPhaseId = null;
+    saveStart(null);
+    updateButtons();
+    renderTimer();
+    renderHistory();
+  }
+  function updateButtons() {
+    if (startTime === null) {
+      igniteBtn.textContent = 'Ignite';
+      igniteBtn.className = 'btn primary';
+      igniteBtn.onclick = startFast;
+      adjustBtn.disabled = true;
+    } else {
+      igniteBtn.textContent = 'End fast';
+      igniteBtn.className = 'btn';
+      igniteBtn.onclick = endFast;
+      adjustBtn.disabled = false;
+    }
+  }
+
+  adjustBtn.addEventListener('click', () => {
+    if (!startTime) return;
+    const d = new Date(startTime);
+    adjustInput.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    adjustErr.style.display = 'none';
+    adjustModal.classList.add('open');
+  });
+  cancelAdjust.addEventListener('click', () => adjustModal.classList.remove('open'));
+  adjustModal.addEventListener('click', e => { if (e.target === adjustModal) adjustModal.classList.remove('open'); });
+  saveAdjust.addEventListener('click', () => {
+    const v = adjustInput.value;
+    if (!v) { showErr(adjustErr, 'Pick a time.'); return; }
+    const ms = new Date(v).getTime();
+    if (isNaN(ms)) { showErr(adjustErr, 'Invalid time.'); return; }
+    if (ms > Date.now()) { showErr(adjustErr, 'Start cannot be in the future.'); return; }
+    startTime = ms;
+    saveStart(startTime);
+    adjustModal.classList.remove('open');
+    renderTimer();
+  });
+
+  logPastBtn.addEventListener('click', () => {
+    const now = new Date();
+    const earlier = new Date(now.getTime() - 18 * 3600000);
+    pastStart.value = `${earlier.getFullYear()}-${pad(earlier.getMonth()+1)}-${pad(earlier.getDate())}T${pad(earlier.getHours())}:${pad(earlier.getMinutes())}`;
+    pastEnd.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    pastErr.style.display = 'none';
+    pastModal.classList.add('open');
+  });
+  cancelPast.addEventListener('click', () => pastModal.classList.remove('open'));
+  pastModal.addEventListener('click', e => { if (e.target === pastModal) pastModal.classList.remove('open'); });
+  savePast.addEventListener('click', () => {
+    const sv = pastStart.value, ev = pastEnd.value;
+    if (!sv || !ev) { showErr(pastErr, 'Fill both times.'); return; }
+    const sMs = new Date(sv).getTime();
+    const eMs = new Date(ev).getTime();
+    if (isNaN(sMs) || isNaN(eMs)) { showErr(pastErr, 'Invalid times.'); return; }
+    if (eMs <= sMs) { showErr(pastErr, 'End must be after start.'); return; }
+    if (eMs > Date.now() + 60000) { showErr(pastErr, 'End cannot be in the future.'); return; }
+    const duration = eMs - sMs;
+    if (duration < 60 * 60 * 1000) { showErr(pastErr, 'Fast must be at least 1 hour.'); return; }
+    if (duration > 30 * 24 * 3600 * 1000) { showErr(pastErr, 'That seems too long. Check the dates.'); return; }
+    history.push({ id: 'h' + Date.now() + Math.floor(Math.random()*1000), start: sMs, end: eMs });
+    saveHistory();
+    pastModal.classList.remove('open');
+    historyOpen = true;
+    renderHistory();
+    setTimeout(() => document.querySelector('.history-section').scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+  });
+
+  function showErr(el, msg) {
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function tick() { renderTimer(); }
+
+  (async function init() {
+    await loadState();
+    updateButtons();
+    tick();
+    renderHistory();
+    tickHandle = setInterval(tick, 1000);
+  })();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
+    } else {
+      if (!tickHandle) tickHandle = setInterval(tick, 1000);
+      tick();
+    }
+  });
+</script>
+</body>
+</html>
