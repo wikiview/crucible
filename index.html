@@ -617,6 +617,52 @@
     .elapsed { font-size: 38px; }
     .detail-title { font-size: 30px; }
   }
+
+  .backup-nudge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 14px;
+    padding: 10px 14px;
+    border: 1px solid rgba(199, 101, 46, 0.28);
+    background: rgba(199, 101, 46, 0.05);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-ketosis);
+  }
+  .backup-nudge.subtle {
+    border-color: var(--line);
+    background: transparent;
+    color: var(--muted);
+  }
+  .backup-nudge .textlink { white-space: nowrap; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-lift);
+    color: var(--bone);
+    border: 1px solid var(--line);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+    z-index: 50;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -650,6 +696,7 @@
   </div>
   <div class="controls-sub reveal r3">
     <button class="textlink" id="adjustBtn" disabled>Adjust start</button>
+    <button class="textlink" id="alertBtn" disabled>Phase alerts</button>
     <button class="textlink" id="logPastBtn">Log a past fast</button>
   </div>
 
@@ -693,6 +740,10 @@
       <span id="historyLabel">Your fasts</span>
       <button class="textlink" id="toggleHistory">Empty</button>
     </div>
+    <div class="backup-nudge" id="backupNudge" style="display:none">
+      <span id="backupMsg"></span>
+      <button class="textlink" id="backupBtn">Back up</button>
+    </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
@@ -731,6 +782,8 @@
     </div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
   // ==========================================================
@@ -1014,7 +1067,12 @@
   const sublineEl = document.getElementById('subline');
   const igniteBtn = document.getElementById('igniteBtn');
   const adjustBtn = document.getElementById('adjustBtn');
+  const alertBtn = document.getElementById('alertBtn');
   const logPastBtn = document.getElementById('logPastBtn');
+  const backupNudge = document.getElementById('backupNudge');
+  const backupMsg = document.getElementById('backupMsg');
+  const backupBtn = document.getElementById('backupBtn');
+  const toastEl = document.getElementById('toast');
   const statusChip = document.getElementById('statusChip');
   const detailEl = document.getElementById('detail');
   const illustrationEl = document.getElementById('illustration');
@@ -1105,6 +1163,7 @@
   let history = [];
   let historyOpen = false;
   let tickHandle = null;
+  let lastBackupCount = 0;
 
   function loadState() {
     try {
@@ -1116,6 +1175,11 @@
       const h = localStorage.getItem('fast:history');
       if (h) {
         try { history = JSON.parse(h) || []; } catch { history = []; }
+      }
+      const b = localStorage.getItem('fast:last_backup_count');
+      if (b) {
+        const n = parseInt(b, 10);
+        if (!isNaN(n)) lastBackupCount = n;
       }
     } catch {}
   }
@@ -1318,6 +1382,7 @@
       });
       historyList.appendChild(item);
     });
+    if (typeof renderBackupNudge === 'function') renderBackupNudge();
   }
 
   toggleHistoryBtn.addEventListener('click', () => {
@@ -1353,11 +1418,13 @@
       igniteBtn.className = 'btn primary';
       igniteBtn.onclick = startFast;
       adjustBtn.disabled = true;
+      alertBtn.disabled = true;
     } else {
       igniteBtn.textContent = 'End fast';
       igniteBtn.className = 'btn';
       igniteBtn.onclick = endFast;
       adjustBtn.disabled = false;
+      alertBtn.disabled = false;
     }
   }
 
@@ -1416,6 +1483,145 @@
     el.style.display = 'block';
   }
 
+  // ==========================================================
+  //  PHASE ALERTS (.ics calendar notifications)
+  // ==========================================================
+  function icsDate(ms) {
+    const d = new Date(ms);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getUTCFullYear()}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;
+  }
+  function generatePhaseAlerts() {
+    if (!startTime) return;
+    const alerts = [
+      { id: 'ketosis', name: 'Ketosis', hours: 16, desc: 'Ketone production active; brain fueling from ketones.' },
+      { id: 'autophagy', name: 'Autophagy', hours: 24, desc: 'Cellular recycling upregulated; mTOR suppressed, AMPK active.' },
+    ];
+    const now = Date.now();
+    const dtstamp = icsDate(now);
+    const upcoming = alerts.filter(a => startTime + a.hours * 3600000 > now + 60000);
+    if (upcoming.length === 0) {
+      toast("Phase milestones already passed");
+      return;
+    }
+    let events = '';
+    upcoming.forEach(a => {
+      const t = startTime + a.hours * 3600000;
+      events +=
+        'BEGIN:VEVENT\r\n' +
+        `UID:crucible-${a.id}-${startTime}@crucible\r\n` +
+        `DTSTAMP:${dtstamp}\r\n` +
+        `DTSTART:${icsDate(t)}\r\n` +
+        `DTEND:${icsDate(t + 60000)}\r\n` +
+        `SUMMARY:Crucible · Entering ${a.name} (${a.hours}h)\r\n` +
+        `DESCRIPTION:${a.desc}\r\n` +
+        'BEGIN:VALARM\r\n' +
+        'ACTION:DISPLAY\r\n' +
+        'TRIGGER:PT0M\r\n' +
+        `DESCRIPTION:Entering ${a.name}\r\n` +
+        'END:VALARM\r\n' +
+        'END:VEVENT\r\n';
+    });
+    const ics =
+      'BEGIN:VCALENDAR\r\n' +
+      'VERSION:2.0\r\n' +
+      'PRODID:-//Crucible//Phase Alerts//EN\r\n' +
+      'CALSCALE:GREGORIAN\r\n' +
+      events +
+      'END:VCALENDAR\r\n';
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crucible-phase-alerts.ics';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast(`${upcoming.length} alert${upcoming.length > 1 ? 's' : ''} ready — add to Calendar`);
+  }
+  alertBtn.addEventListener('click', () => {
+    if (!startTime) return;
+    generatePhaseAlerts();
+  });
+
+  // ==========================================================
+  //  BACKUP (copy-to-clipboard, with download fallback)
+  // ==========================================================
+  function fastsSinceBackup() {
+    return Math.max(0, history.length - lastBackupCount);
+  }
+  function renderBackupNudge() {
+    const diff = fastsSinceBackup();
+    if (history.length === 0) {
+      backupNudge.style.display = 'none';
+      return;
+    }
+    backupNudge.style.display = 'flex';
+    if (diff >= 5) {
+      backupNudge.classList.remove('subtle');
+      backupMsg.textContent = `${diff} new fasts since last backup`;
+      backupBtn.textContent = 'Back up';
+    } else if (diff > 0) {
+      backupNudge.classList.add('subtle');
+      backupMsg.textContent = `${diff} new fast${diff > 1 ? 's' : ''} since last backup`;
+      backupBtn.textContent = 'Back up';
+    } else {
+      backupNudge.classList.add('subtle');
+      backupMsg.textContent = `Backed up · ${history.length} fast${history.length > 1 ? 's' : ''}`;
+      backupBtn.textContent = 'Again';
+    }
+  }
+  function backupData() {
+    const data = {
+      exported: new Date().toISOString(),
+      version: 1,
+      history,
+    };
+    const json = JSON.stringify(data, null, 2);
+    const markSaved = () => {
+      lastBackupCount = history.length;
+      try { localStorage.setItem('fast:last_backup_count', String(lastBackupCount)); } catch {}
+      renderBackupNudge();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(json).then(() => {
+        markSaved();
+        toast(`Copied ${history.length} fast${history.length > 1 ? 's' : ''} to clipboard`);
+      }).catch(() => {
+        downloadBackup(json);
+        markSaved();
+      });
+    } else {
+      downloadBackup(json);
+      markSaved();
+    }
+  }
+  function downloadBackup(json) {
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `crucible-backup-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast('Backup downloaded');
+  }
+  backupBtn.addEventListener('click', backupData);
+
+  // ==========================================================
+  //  TOAST
+  // ==========================================================
+  let toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  }
+
   function tick() { renderTimer(); }
 
   (async function init() {
@@ -1423,6 +1629,7 @@
     updateButtons();
     tick();
     renderHistory();
+    renderBackupNudge();
     tickHandle = setInterval(tick, 1000);
   })();
 
