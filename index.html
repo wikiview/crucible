@@ -414,50 +414,65 @@
   .section-head button.textlink { font-size: 10px; padding: 0; }
 
   .phase-strip {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 6px;
-    margin-bottom: 40px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 14px -20px 18px;
+    padding: 2px 20px;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
   }
+  .phase-strip::-webkit-scrollbar { display: none; }
   .phase-cell {
-    position: relative;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     border: 1px solid var(--line);
-    border-radius: 2px;
-    padding: 10px 8px 12px;
+    border-radius: 999px;
+    padding: 7px 14px;
     cursor: pointer;
     background: transparent;
-    color: inherit;
+    color: var(--bone-dim);
     font-family: var(--sans);
-    text-align: left;
-    transition: border-color 250ms ease, background 250ms ease;
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: border-color 250ms ease, background 250ms ease, color 250ms ease;
   }
-  .phase-cell:hover { border-color: rgba(241, 231, 210, 0.22); background: rgba(241, 231, 210, 0.02); }
+  .phase-cell:hover { border-color: rgba(241, 231, 210, 0.22); background: rgba(241, 231, 210, 0.02); color: var(--bone); }
   .phase-cell[data-current="true"] {
     border-color: var(--cell-color);
-    background: rgba(241, 231, 210, 0.03);
+    background: rgba(241, 231, 210, 0.04);
+    color: var(--bone);
   }
   .phase-cell[data-viewing="true"] {
     border-color: var(--cell-color);
-    background: rgba(241, 231, 210, 0.05);
+    background: rgba(241, 231, 210, 0.06);
+    color: var(--bone);
   }
   .phase-cell .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--cell-color);
-    margin-bottom: 8px;
     box-shadow: 0 0 8px var(--cell-color);
     opacity: 0.9;
+    flex: 0 0 auto;
   }
   .phase-cell .cell-name {
     font-family: var(--serif);
-    font-size: 13px;
-    line-height: 1.1;
-    color: var(--bone);
-    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 1;
+    color: inherit;
   }
   .phase-cell .cell-range {
     font-family: var(--mono);
     font-size: 9.5px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--muted);
   }
 
@@ -613,7 +628,6 @@
   @keyframes rise { to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 420px) {
-    .phase-strip { grid-template-columns: repeat(3, 1fr); }
     .elapsed { font-size: 38px; }
     .detail-title { font-size: 30px; }
   }
@@ -710,6 +724,7 @@
       </div>
       <div class="detail-window" id="detailWindow">0 – 4 h</div>
     </div>
+    <div class="phase-strip reveal r5" id="phaseStrip"></div>
     <div class="tagline" id="detailTagline"></div>
     <div id="detailProse"></div>
 
@@ -728,12 +743,6 @@
       <span class="body" id="noteBody"></span>
     </div>
   </section>
-
-  <div class="section-head reveal r5">
-    <span>The six stages</span>
-    <span class="hint">tap to explore</span>
-  </div>
-  <div class="phase-strip reveal r5" id="phaseStrip"></div>
 
   <div class="history-section reveal r6">
     <div class="section-head">
@@ -1147,9 +1156,9 @@
       btn.style.setProperty('--cell-color', p.raw);
       btn.dataset.phaseId = p.id;
       btn.innerHTML = `
-        <div class="dot"></div>
-        <div class="cell-name">${p.name}</div>
-        <div class="cell-range">${p.start}–${p.end}h</div>
+        <span class="dot"></span>
+        <span class="cell-name">${p.name}</span>
+        <span class="cell-range">${p.start}–${p.end}h</span>
       `;
       btn.addEventListener('click', () => viewPhase(p.id, true));
       phaseStrip.appendChild(btn);
