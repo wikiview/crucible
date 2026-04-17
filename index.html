@@ -271,11 +271,7 @@
   .illustration svg { display: block; }
 
   .detail-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 4px;
   }
   .detail-eyebrow {
     font-family: var(--mono);
@@ -283,22 +279,7 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .detail-title {
-    font-family: var(--serif);
-    font-size: 34px;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
-    color: var(--bone);
-  }
-  .detail-window {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    padding-top: 6px;
+    transition: color 350ms ease;
   }
   .tagline {
     font-family: var(--serif);
@@ -415,46 +396,61 @@
 
   .phase-strip {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 6px;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    margin: 14px -20px 18px;
-    padding: 2px 20px;
+    margin: 10px -20px 22px;
+    padding: 6px 20px 10px;
     scroll-snap-type: x proximity;
-    mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
   }
   .phase-strip::-webkit-scrollbar { display: none; }
+
+  :root {
+    --pill-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   .phase-cell {
     flex: 0 0 auto;
-    scroll-snap-align: start;
+    scroll-snap-align: center;
     display: inline-flex;
-    align-items: center;
-    gap: 7px;
+    align-items: baseline;
+    gap: 8px;
     border: 1px solid var(--line);
     border-radius: 999px;
     padding: 7px 14px;
     cursor: pointer;
     background: transparent;
     color: var(--bone-dim);
-    font-family: var(--sans);
-    font-size: 12.5px;
-    letter-spacing: 0.02em;
+    font-family: var(--serif);
     white-space: nowrap;
-    transition: border-color 250ms ease, background 250ms ease, color 250ms ease;
+    transition:
+      padding 500ms var(--pill-ease),
+      background 500ms var(--pill-ease),
+      border-color 500ms var(--pill-ease),
+      color 400ms var(--pill-ease),
+      box-shadow 500ms var(--pill-ease),
+      opacity 400ms ease;
+    opacity: 0.72;
   }
-  .phase-cell:hover { border-color: rgba(241, 231, 210, 0.22); background: rgba(241, 231, 210, 0.02); color: var(--bone); }
+  .phase-cell:hover {
+    border-color: rgba(241, 231, 210, 0.22);
+    opacity: 0.9;
+  }
   .phase-cell[data-current="true"] {
-    border-color: var(--cell-color);
-    background: rgba(241, 231, 210, 0.04);
-    color: var(--bone);
+    opacity: 0.95;
   }
   .phase-cell[data-viewing="true"] {
+    padding: 11px 22px;
     border-color: var(--cell-color);
-    background: rgba(241, 231, 210, 0.06);
+    background: rgba(241, 231, 210, 0.045);
     color: var(--bone);
+    box-shadow: 0 0 0 0.5px var(--cell-color) inset, 0 0 24px -6px var(--cell-color);
+    opacity: 1;
   }
   .phase-cell .dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -462,18 +458,37 @@
     box-shadow: 0 0 8px var(--cell-color);
     opacity: 0.9;
     flex: 0 0 auto;
+    transform: translateY(-1px);
+    transition: width 500ms var(--pill-ease), height 500ms var(--pill-ease), box-shadow 500ms var(--pill-ease);
+  }
+  .phase-cell[data-viewing="true"] .dot {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 14px var(--cell-color);
   }
   .phase-cell .cell-name {
     font-family: var(--serif);
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1;
+    letter-spacing: 0.005em;
     color: inherit;
+    transition: font-size 500ms var(--pill-ease), letter-spacing 500ms var(--pill-ease);
+  }
+  .phase-cell[data-viewing="true"] .cell-name {
+    font-size: 24px;
+    letter-spacing: -0.005em;
   }
   .phase-cell .cell-range {
     font-family: var(--mono);
     font-size: 9.5px;
     letter-spacing: 0.08em;
     color: var(--muted);
+    transition: font-size 500ms var(--pill-ease), opacity 400ms var(--pill-ease);
+    opacity: 0.7;
+  }
+  .phase-cell[data-viewing="true"] .cell-range {
+    font-size: 11px;
+    opacity: 1;
   }
 
   .history-section {
@@ -629,7 +644,7 @@
 
   @media (max-width: 420px) {
     .elapsed { font-size: 38px; }
-    .detail-title { font-size: 30px; }
+    .phase-cell[data-viewing="true"] .cell-name { font-size: 22px; }
   }
 
   .backup-nudge {
@@ -718,11 +733,7 @@
     <div id="viewingBanner" style="display:none"></div>
     <div class="illustration" id="illustration"></div>
     <div class="detail-head">
-      <div>
-        <div class="detail-eyebrow" id="detailEyebrow">PHASE 01 · FED</div>
-        <h2 class="detail-title" id="detailTitle">Fed State</h2>
-      </div>
-      <div class="detail-window" id="detailWindow">0 – 4 h</div>
+      <div class="detail-eyebrow" id="detailEyebrow">PHASE 01 · ANABOLIC</div>
     </div>
     <div class="phase-strip reveal r5" id="phaseStrip"></div>
     <div class="tagline" id="detailTagline"></div>
@@ -1086,8 +1097,6 @@
   const detailEl = document.getElementById('detail');
   const illustrationEl = document.getElementById('illustration');
   const detailEyebrow = document.getElementById('detailEyebrow');
-  const detailTitle = document.getElementById('detailTitle');
-  const detailWindow = document.getElementById('detailWindow');
   const detailTagline = document.getElementById('detailTagline');
   const detailProse = document.getElementById('detailProse');
   const effectsBody = document.getElementById('effectsBody');
@@ -1288,8 +1297,6 @@
     detailEl.style.setProperty('--accent', phase.raw);
     illustrationEl.innerHTML = iconSvg(phase.id);
     detailEyebrow.textContent = `Phase ${phase.number} · ${phase.subtitle}`;
-    detailTitle.textContent = phase.name;
-    detailWindow.textContent = `${phase.start} – ${phase.end} h`;
     detailTagline.textContent = phase.tagline;
 
     detailProse.innerHTML = '';
@@ -1327,11 +1334,19 @@
   }
 
   function updateStripHighlight(currentId) {
+    const focusedId = viewingPhaseId || currentId || PHASES[0].id;
+    let focusedEl = null;
     phaseStrip.querySelectorAll('.phase-cell').forEach(c => {
       const pid = c.dataset.phaseId;
       c.setAttribute('data-current', pid === currentId ? 'true' : 'false');
-      c.setAttribute('data-viewing', pid === viewingPhaseId ? 'true' : 'false');
+      const isFocused = pid === focusedId;
+      c.setAttribute('data-viewing', isFocused ? 'true' : 'false');
+      if (isFocused) focusedEl = c;
     });
+    if (focusedEl) {
+      const target = focusedEl.offsetLeft - (phaseStrip.clientWidth / 2) + (focusedEl.offsetWidth / 2);
+      phaseStrip.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+    }
   }
 
   function viewPhase(id, fromUser) {
